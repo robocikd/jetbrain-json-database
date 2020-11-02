@@ -30,24 +30,16 @@ public class Main {
     }
 
     public void run() {
-
         String address = "127.0.0.1";
         int port = 23456;
-
-        Socket socket = null;
-        DataInputStream input = null;
-        DataOutputStream output = null;
         System.out.println("Client started!");
-
         String msgToServer = type + " " + index;
         for (int i = 0; i < message.size(); i++) {
-            msgToServer += " " +message.get(i);
+            msgToServer += " " + message.get(i);
         }
-
-        try {
-            socket = new Socket(InetAddress.getByName(address), port);
-            input = new DataInputStream(socket.getInputStream());
-            output = new DataOutputStream(socket.getOutputStream());
+        try (Socket socket = new Socket(InetAddress.getByName(address), port);
+             DataInputStream input = new DataInputStream(socket.getInputStream());
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream())) {
             System.out.println("Sent: " + msgToServer);
             output.writeUTF(msgToServer);
             final String msgFromServer = input.readUTF();
