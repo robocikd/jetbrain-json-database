@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Scanner;
 
 public class Main {
 
@@ -44,52 +47,52 @@ public class Main {
                 ex.printStackTrace();
             }
         }
-//        Scanner scanner = new Scanner(System.in);
-//
-//        String[] jsonDb = new String[100];
-//        Arrays.fill(jsonDb, "");
-//
-//        do {
-//            final String[] inputText = scanner.nextLine().trim().split(" ");
-//            switch (inputText[0]) {
-//                case "get":
-//                    int anInt = Integer.parseInt(inputText[1]);
-//                    if (anInt < 1 || anInt > 100 || jsonDb[anInt - 1].equals("")) {
-//                        System.out.println("ERROR");
-//                    } else {
-//                        System.out.println(jsonDb[anInt - 1]);
-//                    }
-//                    break;
-//                case "set":
-//                    anInt = Integer.parseInt(inputText[1]);
-//                    if (anInt < 1 || anInt > 100) {
-//                        System.out.println("ERROR");
-//                    } else {
-//                        String temp = "";
-//                        for (int i = 2; i < inputText.length; i++) {
-//                            temp += inputText[i] + " ";
-//                        }
-//                        jsonDb[anInt - 1] = temp.trim();
-//                        System.out.println("OK");
-//                    }
-//                    break;
-//                case "delete":
-//                    anInt = Integer.parseInt(inputText[1]);
-//                    if (anInt < 1 || anInt > 100) {
-//                        System.out.println("ERROR");
-//                    } else {
-//                        if (!jsonDb[anInt - 1].equals("")) {
-//                            jsonDb[anInt - 1] = "";
-//                        }
-//                        System.out.println("OK");
-//                    }
-//                    break;
-//                case "exit":
-//                    return;
-//                default:
-//                    System.out.println("Bad action.");
-//
-//            }
-//        } while (true);
+        Scanner scanner = new Scanner(System.in);
+
+        String[] jsonDb = new String[1000];
+        Arrays.fill(jsonDb, "");
+
+        do {
+            final String[] inputText = scanner.nextLine().trim().split(" ");
+            switch (inputText[0]) {
+                case "get":
+                    int anInt = Integer.parseInt(inputText[1]);
+                    if (anInt < 1 || anInt > 100 || jsonDb[anInt - 1].equals("")) {
+                        System.out.println("ERROR");
+                    } else {
+                        System.out.println(jsonDb[anInt - 1]);
+                    }
+                    break;
+                case "set":
+                    anInt = Integer.parseInt(inputText[1]);
+                    if (anInt < 1 || anInt > 100) {
+                        System.out.println("ERROR");
+                    } else {
+                        String temp = "";
+                        for (int i = 2; i < inputText.length; i++) {
+                            temp += inputText[i] + " ";
+                        }
+                        jsonDb[anInt - 1] = temp.trim();
+                        System.out.println("OK");
+                    }
+                    break;
+                case "delete":
+                    anInt = Integer.parseInt(inputText[1]);
+                    if (anInt < 1 || anInt > 100) {
+                        System.out.println("ERROR");
+                    } else {
+                        if (!jsonDb[anInt - 1].equals("")) {
+                            jsonDb[anInt - 1] = "";
+                        }
+                        System.out.println("OK");
+                    }
+                    break;
+                case "exit":
+                    return;
+                default:
+                    System.out.println("Bad action.");
+
+            }
+        } while (true);
     }
 }
