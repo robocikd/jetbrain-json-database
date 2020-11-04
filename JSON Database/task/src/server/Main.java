@@ -1,26 +1,29 @@
 package server;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import messages.JsonMsg;
+import messages.ResponseJson;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class Main {
 
-    public static final int MAX_DB_INDEX = 1000;
     public static final String ERROR = "ERROR";
     public static final String OK = "OK";
+    public static final String NO_SUCH_KEY = "No such key";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         String address = "127.0.0.1";
         int port = 23456;
 
-        String[] jsonDb = new String[1000];
-        Arrays.fill(jsonDb, "");
+        JsonObject jsonDB = new JsonObject();
 
         try (ServerSocket server = new ServerSocket(port, 50, InetAddress.getByName(address))) {
             System.out.println("Server started!");
@@ -31,42 +34,36 @@ public class Main {
 
                     final String fromClient = input.readUTF();
                     System.out.println("Received: " + fromClient);
-                    final String[] msgFromClient = fromClient.trim().split(" ");
 
-                    String msgToClient = "";
+                    Gson gson = new Gson();
+                    JsonMsg jsonMsg = gson.fromJson(fromClient, JsonMsg.class);
 
-                    switch (msgFromClient[0]) {
+                    String response = null;
+                    String value = null;
+                    String reason = null;
+                    String key = jsonMsg.getKey();
+
+                    switch (jsonMsg.getType()) {
                         case "get":
-                            int anInt = Integer.parseInt(msgFromClient[1]);
-                            if (anInt < 1 || anInt > MAX_DB_INDEX || jsonDb[anInt - 1].equals("")) {
-                                msgToClient += ERROR;
+                            if (!jsonDB.has(key)) {
+                                response = ERROR;
+                                reason = NO_SUCH_KEY;
                             } else {
-                                String valFromDb = jsonDb[anInt - 1];
-                                msgToClient += valFromDb;
+                                response = OK;
+                                value = jsonDB.get(key).getAsString();
                             }
                             break;
                         case "set":
-                            anInt = Integer.parseInt(msgFromClient[1]);
-                            if (anInt < 1 || anInt > MAX_DB_INDEX) {
-                                msgToClient += ERROR;
-                            } else {
-                                String temp = "";
-                                for (int i = 2; i < msgFromClient.length; i++) {
-                                    temp += msgFromClient[i] + " ";
-                                }
-                                jsonDb[anInt - 1] = temp.trim();
-                                msgToClient += OK;
-                            }
+                            jsonDB.addProperty(jsonMsg.getKey(), jsonMsg.getValue());
+                            response = OK;
                             break;
                         case "delete":
-                            anInt = Integer.parseInt(msgFromClient[1]);
-                            if (anInt < 1 || anInt > MAX_DB_INDEX) {
-                                msgToClient += ERROR;
+                            if (!jsonDB.has(key)) {
+                                response = ERROR;
+                                reason = NO_SUCH_KEY;
                             } else {
-                                if (!jsonDb[anInt - 1].equals("")) {
-                                    jsonDb[anInt - 1] = "";
-                                }
-                                msgToClient += OK;
+                                jsonDB.remove(jsonMsg.getKey());
+                                response = OK;
                             }
                             break;
                         case "exit":
@@ -74,6 +71,8 @@ public class Main {
                         default:
                             System.out.println("Bad action.");
                     }
+                    ResponseJson rj = new ResponseJson(response, value, reason);
+                    String msgToClient = gson.toJson(rj);
                     output.writeUTF(msgToClient);
                     System.out.println("Sent: " + msgToClient);
                 }
